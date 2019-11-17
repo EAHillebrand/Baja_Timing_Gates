@@ -2,17 +2,15 @@
  * Timing Gates
  * Using pressure Sensor
  */
-
-
-const unsigned long period = 1000; 
-int const startPin = 1;
-int const stopPin = 2;
+ 
+int const startPin = 2;
+int const stopPin = 3;
 int ledPin = 13; // Pin 13 has an LED connected on most Arduino boards.
-unsigned long DELAY_TIME = 1500; // 1.5 sec
 unsigned long startMillis;
 unsigned long currentMillis;
-bool delayRunning = false; // true if still waiting for timer to finish
+bool timerRunning = false; // true if still waiting for timer to finish
 bool ledOn = false; // keep track of the led state that visually reps the 
+bool lapTimed = false;
 
 void setup() {
   Serial.begin(9600);
@@ -20,36 +18,37 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(stopPin), finishNow, RISING);
   pinMode(ledPin, OUTPUT);   // initialize the digital pin as an output.
   digitalWrite(ledPin, LOW); // turn led off
-  ledOn = false;
-  // start delay
   startMillis = 0;
-  delayRunning = false;
+  currentMillis = 0;
+  ledOn = false;
+  timerRunning = false;
+  lapTimed = false;
 }
 
 void loop() {
   // check if delay has timed out
-  if (delayRunning && ( >= DELAY_TIME)) {
+  if (timerRunning && !ledOn){
+    digitalWrite(ledPin, HIGH);
+    ledOn = true;
+  }
     
-    delayStart = currentMillis;
-    // toggle the led
+  if (!timerRunning && lapTimed) {
     ledOn = !ledOn;
-    digitalWrite(ledPin, !digitalRead(ledPin));
+    digitalWrite(ledPin, LOW);
+    Serial.println("The lap time was:");
+    Serial.println(currentMillis - startMillis);
+    lapTimed = false;    
   }
 }
 
 void timeNow() {
-  
+  startMillis = millis();
+  timerRunning = true;
+  lapTimed = false;
 }
-//void loop() {
-//  // check if delay has timed out
-//  if (delayRunning && ((millis() - delayStart) >= DELAY_TIME)) {
-//    delayStart += DELAY_TIME; // this prevents drift in the delays
-//    // toggle the led
-//    ledOn = !ledOn;
-//    if (ledOn) {
-//      digitalWrite(led, HIGH); // turn led on
-//    } else {
-//      digitalWrite(led, LOW); // turn led off
-//    }
-//  }
-//}
+
+void finishNow(){
+  currentMillis = millis();
+  timerRunning = false;
+  lapTimed = true;
+}
