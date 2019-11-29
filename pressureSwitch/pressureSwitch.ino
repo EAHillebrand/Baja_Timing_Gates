@@ -14,8 +14,8 @@ bool lapTimed = false;
 
 void setup() {
   Serial.begin(9600);
-  attachInterrupt(digitalPinToInterrupt(startPin), timeNow, RISING);
-  attachInterrupt(digitalPinToInterrupt(stopPin), finishNow, RISING);
+  attachInterrupt(digitalPinToInterrupt(startPin), timeNow, FALLING);
+  attachInterrupt(digitalPinToInterrupt(stopPin), finishNow, FALLING);
   pinMode(ledPin, OUTPUT);   // initialize the digital pin as an output.
   digitalWrite(ledPin, LOW); // turn led off
   startMillis = 0;
